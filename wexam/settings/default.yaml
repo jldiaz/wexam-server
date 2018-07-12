@@ -1,0 +1,39 @@
+# Configuración para desplegarse en una instancia EC2 de Amazon
+# Usa Gmail como SMTP (requiere cuenta en gmail)
+#
+# Como base de datos usa postgresql ejecutándose en un contenedor docker, cuya IP
+# hay que especificar en la configuración
+#
+# A través de redis puede enviar trabajos de compilación a otros servicios, alojados
+# también en mi servidor
+#
+# El token JWT dura 2 días
+
+jwtauth:
+  master_secret: <secreto para firmar los tokens jwt, poner un valor aleatorio>
+  leeway: 10
+  expiration_delta: 172800
+
+email:
+  smtp_server: smtp.gmail.com
+  smtp_port: 587
+  usetls: true
+  user: <usuario gmail>
+  password: ********
+  from_addr: <usuario gmail>@gmail.com
+
+static:
+  folder: "./static"
+
+database:
+  provider: from_database_url
+  # Toma los parámetros de la variable de entorno DATABASE_URL
+
+redis:
+  # La IP que figura aqui es la del docker donde está redis
+  # Cuando la propia app se containerize habrá que poner el nombre (DNS) del contenedor redis
+  # que será "wexam-redis"
+  url: redis://wexam-redis
+
+reset_database:
+  allow: false

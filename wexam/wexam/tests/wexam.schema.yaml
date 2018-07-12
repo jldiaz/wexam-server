@@ -1,0 +1,318 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+$id: "http://wexam.org/draft-01/schema#"
+
+title: Definiciones de diferentes entidades en WeXaM
+
+definitions:
+  positiveInteger: {type: integer, minimum: 1}
+  intOrNull:
+    oneOf:
+      - {type: integer}
+      - {type: "null"}
+  dateOrNull:
+    oneOf:
+      - {type: string, format: date-time}
+      - {type: "null"}
+  listOfInts:
+    type: array
+    items: {type: integer}
+  listOfUris:
+    type: array
+    items: {type: string, format: uri}
+  listOfTags:
+    type: array
+    items: {type: string, minLength: 1}
+    minLength: 1
+
+  user_min:
+    type: object
+    properties:
+      nombre: {type: string}
+      id: {type: integer}
+
+  user:
+    allOf:
+    - {$ref: "#/definitions/user_min"}
+    properties:
+        nombre: {}
+        id: {}
+        email: {type: string, format: email}
+        role: {type: string, enum: [admin, profesor]}
+        fecha_creacion: {type: string, format: date-time}
+        fecha_modificacion: {type: string, format: date-time}
+    required: [nombre, email, role, id]
+    additionalProperties: false
+
+  userPOST:
+    allOf:
+    - {$ref: "#/definitions/user_min"}
+    properties:
+        nombre: {}
+        email: {type: string, format: email}
+        role: {type: string, enum: [admin, user]}
+        password: { type: string}
+    required: [nombre, email, role, password]
+    additionalProperties: false
+
+  profesores:
+    type: array
+    items: {$ref: "#/definitions/user_min"}
+
+  profesores_full:
+    type: array
+    items: {}   # TODO: {$ref: "#/definitions/user"}
+
+  circulo_min:
+    type: object
+    properties:
+      id: {type: integer}
+      nombre: {type: string}
+    required: [id, nombre]
+    additionalProperties: false
+
+  circulo:
+    type: object
+    properties:
+      id: {type: integer}
+      nombre: {type: string}
+      creador: {$ref: "#/definitions/user_min"}
+      miembros: {$ref: "#/definitions/profesores"}
+    required: [id, nombre, creador, miembros]
+
+  circulo_full:
+    allOf:
+    - {$ref: "#/definitions/circulo"}
+    properties:
+      id: {}
+      nombre: {}
+      creador: {}
+      miembros: {}
+      fecha_creacion: {type: string, format: date-time}
+      fecha_modificacion: {type: string, format: date-time}
+      problemas: {$ref: "#/definitions/problemas"}
+    required: [id, nombre, creador, miembros, problemas]
+    additionalProperties: false
+
+  circulos:
+    type: array
+    items: {$ref: "#/definitions/circulo_min"}
+
+  circulos_full:
+    type: array
+    items: {$ref: "#/definitions/circulo_full"}
+
+  problema_min:
+    type: object
+    properties:
+      id: {type: integer}
+      n_cuestiones: {$ref: "#/definitions/positiveInteger"}
+      puntos: {type: number}
+      resumen: {type: string}
+      tags: {$ref: "#/definitions/listOfTags"}
+      originalidad: {type: string}
+      snippet: {type: string}
+      publicado: {type: boolean}
+      n_examenes: {type: number}
+      es_borrable: {type: boolean}
+      es_compartible: {type: boolean}
+    required: [id, resumen, tags, puntos, n_cuestiones,
+               creador, originalidad, snippet, publicado, n_examenes,
+               es_borrable, es_compartible]
+
+  problema_common:
+    allOf:
+    - {$ref: "#/definitions/problema_min"}
+    properties:
+      id: {}
+      n_cuestiones: {}
+      puntos: {}
+      resumen: {}
+      tags: {}
+      originalidad: {}
+      snippet: {}
+      publicado: {}
+      n_examenes: {}
+      es_borrable: {}
+      es_compartible: {}
+      creador:  {$ref: "#/definitions/user_min"}
+      problema_origen: {$ref: "#/definitions/intOrNull"}
+      problemas_derivados: {$ref: "#/definitions/listOfInts"}
+      enunciado: {type: string}
+      figuras: {$ref: "#/definitions/listOfUris"}
+      compartido: {$ref: "#/definitions/circulos"}
+
+  problema:
+    allOf:
+    - {$ref: "#/definitions/problema_common"}
+    properties:
+      id: {}
+      n_cuestiones: {}
+      puntos: {}
+      resumen: {}
+      tags: {}
+      originalidad: {}
+      creador:  {}
+      problema_origen: {}
+      problemas_derivados: {}
+      enunciado: {}
+      figuras: {}
+      compartido: {}
+      snippet: {}
+      publicado: {}
+      n_examenes: {}
+      es_borrable: {}
+      es_compartible: {}
+      cuestiones: {$ref: "#/definitions/listOfUris"}
+    required: [ creador, cuestiones, resumen, enunciado, n_cuestiones,
+                puntos, compartido, tags, snippet, publicado, n_examenes,
+                es_borrable, es_compartible ]
+    additionalProperties: false
+
+  cuestion:
+    type: object
+    properties:
+      enunciado: {type: string}
+      respuesta: {type: string}
+      explicacion: {type: string}
+      puntos: {type: number}
+
+  problema_full:
+    allOf:
+    - {$ref: "#/definitions/problema_common"}
+    properties:
+      id: {}
+      n_cuestiones: {}
+      puntos: {}
+      resumen: {}
+      tags: {}
+      originalidad: {}
+      creador:  {}
+      problema_origen: {}
+      problemas_derivados: {}
+      enunciado: {}
+      figuras: {}
+      compartido: {}
+      snippet: {}
+      publicado: {}
+      n_examenes: {}
+      es_borrable: {}
+      es_compartible: {}
+      fecha_creacion: {type: string, format: date-time}
+      fecha_modificacion: {type: string, format: date-time}
+      cuestiones:
+        type: array
+        items: {$ref: "#/definitions/cuestion"}
+      examenes:
+        type: array
+        items: {$ref: "#/definitions/examen_min"}
+    required: [ creador, problema_origen, problemas_derivados, compartido,
+                cuestiones, resumen, enunciado, n_cuestiones, puntos, tags,
+                snippet, publicado, n_examenes, examenes, es_borrable, 
+                es_compartible]
+    additionalProperties: false
+
+  problemas:
+    type: array
+    items: {$ref: "#/definitions/problema_min"}
+
+  problemas_full:
+    type: array
+    items: { $ref: "#/definitions/problema_full" }
+
+  asignatura:
+    type: object
+    properties:
+      id: {type: integer}
+      nombre: {type: string}
+      titulacion: {type: string}
+    required: [id, nombre, titulacion]
+    additionalProperties: false
+
+  examen_min:
+    type: object
+    properties:
+      id: {type: integer}
+      estado:
+        type: string
+        enum: [abierto, cerrado]
+      asignatura: {type: string}
+      titulacion: {type: string}
+      fecha: {type: string, format: date-time}
+      convocatoria: {type: string}
+      tipo: {type: string}
+      creador: {$ref: "#/definitions/user_min"}
+      publicado: {$ref: "#/definitions/dateOrNull"}
+    required:  [id, estado, asignatura, titulacion, fecha, convocatoria, tipo, creador, publicado]
+
+  examen:
+    allOf:
+    - {$ref: "#/definitions/examen_min"}
+    properties:
+        id: {}
+        estado: {}
+        asignatura: {}
+        titulacion: {}
+        fecha: {}
+        convocatoria: {}
+        tipo: {}
+        creador: {}
+        publicado: {}
+        intro: {type: string}
+        problemas: {$ref: "#/definitions/problemas"}
+    required: [id, estado, asignatura, titulacion, fecha, convocatoria, tipo, creador, publicado,
+               intro, problemas]
+    additionalProperties: false
+
+  examen_full:
+    allOf:
+    - {$ref: "#/definitions/examen_min"}
+    properties:
+        id: {}
+        estado: {}
+        asignatura: {}
+        titulacion: {}
+        fecha: {}
+        convocatoria: {}
+        tipo: {}
+        creador: {}
+        publicado: {}
+        intro: {type: string}
+        problemas: {$ref: "#/definitions/problemas_full"}
+        fecha_creacion: {type: string, format: date-time}
+        fecha_modificacion: {type: string, format: date-time}
+    required: [id, estado, asignatura, titulacion, fecha, convocatoria, tipo, creador, publicado,
+               intro, problemas]
+    additionalProperties: false
+
+  examenes:
+    type: array
+    items: {$ref: "#/definitions/examen_min"}
+
+  examenes_full:
+    type: array
+    items: {$ref: "#/definitions/examen_full"}
+
+  tag_min:
+    type: string
+
+  tag:
+    type: object
+    properties:
+      id: {type: integer}
+      name: {type: string, minLength: 1}
+    required: [id, name]
+
+  tag_full:
+    allOf:
+    - {$ref: "#/definitions/tag"}
+    properties:
+        id: {}
+        name: {}
+        usado: {type: integer}
+    required: [id, name, usado]
+    additionalProperties: false
+
+  tags: {$ref: "#/definitions/listOfTags"}
+  tags_full:
+    type: array
+    items: {$ref: "#/definitions/tag_full"}
