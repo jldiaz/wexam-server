@@ -10,7 +10,7 @@ passlib==1.7.1
 pony==0.7.3
 psycopg2-binary==2.7.5
 pycparser==2.18
-PyJWT==1.5.3
+PyJWT==2.4.0
 PyYAML==4.2b1
 redis==2.10.6
 reg==0.11
