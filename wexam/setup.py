@@ -26,7 +26,7 @@ setup(
         'more.jwtauth',
         'passlib',
         'bcrypt',
-        'pyjwt==1.5.3',
+        'pyjwt==2.4.0',
         'werkzeug',
         'uwsgi',
         'simhash',
